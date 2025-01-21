@@ -1,0 +1,78 @@
+name: Micro Template CI/CD
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'micro-template/**'
+      - '.github/workflows/micro-template.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'micro-template/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          
+      - name: Install Dependencies
+        run: cd micro-template && pnpm install
+        
+      - name: Run Lint
+        run: cd micro-template && pnpm lint
+        
+      - name: Run Type Check
+        run: cd micro-template && pnpm tsc --noEmit
+        
+  build-template:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          
+      - name: Install Dependencies
+        run: cd micro-template && pnpm install
+        
+      - name: Build
+        run: cd micro-template && pnpm build
+        
+      - name: Deploy Template to Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            cd /var/www/godin-lowcode
+            git pull
+            cd micro-template
+            # 更新模板文件
+            rm -rf /var/www/templates/micro/*
+            cp -r ./* /var/www/templates/micro/
+            # 确保脚本有执行权限
+            chmod +x /var/www/templates/micro/scripts/create-app.sh 

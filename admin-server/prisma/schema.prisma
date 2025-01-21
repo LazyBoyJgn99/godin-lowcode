@@ -1,0 +1,90 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id        String    @id @default(uuid())
+  name      String
+  email     String    @unique
+  password  String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  apis      Api[]
+  menus     Menu[]
+  pages     Page[]
+  settings  Settings?
+
+  @@map("tenants")
+}
+
+model Page {
+  id        String   @id @default(cuid())
+  pageName  String
+  title     String
+  content   String?  @db.Text
+  status    String   @default("draft")
+  buildPath String?
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  tenantId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Menu      Menu[]
+
+  @@unique([tenantId, pageName])
+}
+
+model Menu {
+  id        String   @id @default(uuid())
+  name      String
+  path      String?
+  icon      String?
+  sort      Int      @default(0)
+  parentId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tenantId  String
+  pageId    String?
+  page      Page?    @relation(fields: [pageId], references: [id])
+  parent    Menu?    @relation("MenuToMenu", fields: [parentId], references: [id])
+  children  Menu[]   @relation("MenuToMenu")
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([pageId], map: "menus_pageId_fkey")
+  @@index([parentId], map: "menus_parentId_fkey")
+  @@index([tenantId], map: "menus_tenantId_fkey")
+  @@map("menus")
+}
+
+model Api {
+  id         String   @id @default(uuid())
+  name       String
+  method     String
+  path       String
+  targetUrl  String
+  headers    Json?
+  parameters Json?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  tenantId   String
+  tenant     Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, name])
+  @@map("apis")
+}
+
+model Settings {
+  id        String   @id @default(uuid())
+  theme     Json?
+  config    Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tenantId  String   @unique
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("settings")
+}

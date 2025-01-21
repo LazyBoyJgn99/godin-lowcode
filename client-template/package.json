@@ -1,0 +1,51 @@
+{
+  "name": "@icedesign/stark-layout-scaffold",
+  "version": "3.3.2",
+  "description": "微前端方案 icestark 的主应用模板，用于快速初始化主应用",
+  "homepage": "https://icestark-react.surge.sh",
+  "dependencies": {
+    "@alifd/next": "^1.x",
+    "@alifd/theme-design-pro": "^0.x",
+    "classnames": "^2.2.5",
+    "moment": "^2.24.0",
+    "prop-types": "^15.5.8",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "devDependencies": {
+    "@iceworks/spec": "^1.0.0",
+    "@types/react": "^17.0.2",
+    "@types/react-dom": "^17.0.2",
+    "build-plugin-fusion": "^0.1.21",
+    "build-plugin-icestark": "^2.0.0",
+    "build-plugin-ignore-style": "^0.1.0",
+    "build-plugin-moment-locales": "^0.1.0",
+    "eslint": "^7.30.0",
+    "ice.js": "^2.0.0",
+    "stylelint": "^13.7.2"
+  },
+  "scripts": {
+    "start": "icejs start",
+    "build": "icejs build",
+    "prepublishOnly": "npm run build",
+    "lint": "npm run eslint && npm run stylelint",
+    "eslint": "eslint --cache --ext .js,.jsx,.ts,.tsx ./",
+    "eslint:fix": "npm run eslint -- --fix",
+    "stylelint": "stylelint \"**/*.{css,scss,less}\""
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scaffoldConfig": {
+    "name": "ice-stark-layout",
+    "title": "icestark 主应用",
+    "categories": [
+      "icestark"
+    ],
+    "screenshot": "https://img.alicdn.com/tfs/TB1WMB9YAL0gK0jSZFAXXcA9pXa-1625-883.png"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ice-lab/react-materials/tree/master/scaffolds/icestark-layout"
+  }
+}
